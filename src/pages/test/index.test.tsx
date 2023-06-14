@@ -1,10 +1,16 @@
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
+import type { RenderOptions } from "@testing-library/react";
+import type { LanguagesHooksReturn } from "../../hooks/useLanguages";
 
 import { screen, render } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import Test from ".";
 import useLanguages from "../../hooks/useLanguages";
+
+declare global {
+  const renderWithQuery: (renderComponent: ReactNode) => RenderOptions;
+}
 
 jest.mock("../../hooks/useLanguages");
 
@@ -17,14 +23,16 @@ const wrapper = ({ children }: { children: ReactNode }): JSX.Element => {
 };
 
 describe("Test Component", () => {
+  const mockedUseLanguages =
+    useLanguages as unknown as jest.Mock<LanguagesHooksReturn>;
   beforeEach(() => {
-    useLanguages.mockImplementation(() => ({
+    mockedUseLanguages.mockImplementation(() => ({
       data: undefined,
     }));
   });
 
   test("no data", () => {
-    useLanguages.mockImplementation(() => ({
+    mockedUseLanguages.mockImplementation(() => ({
       data: undefined,
     }));
 
@@ -34,11 +42,11 @@ describe("Test Component", () => {
   });
 
   test("with data", async () => {
-    useLanguages.mockImplementation(() => ({
+    mockedUseLanguages.mockImplementation(() => ({
       data: ["java", "javascript"],
     }));
 
-    render(<Test />, { wrapper });
+    renderWithQuery(<Test />);
 
     const list = await screen.findAllByRole("listitem");
     expect(list.length).toBe(2);

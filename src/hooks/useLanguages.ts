@@ -2,7 +2,12 @@ import { useQuery } from "react-query";
 
 import { getLanguages } from "../api";
 
-const useLanguages = (keyword: string) => {
+export interface LanguagesHooksReturn {
+  data: string[] | undefined;
+  isLoading?: boolean;
+}
+
+const useLanguages = (keyword: string): LanguagesHooksReturn => {
   const { data, isLoading } = useQuery(["/languages", keyword], () =>
     getLanguages(keyword)
   );
